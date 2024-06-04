@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Quản lý sinh viên</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery3.6.0.min.js"></script>
+</head>
+<body class="container mx-auto p-4">
+    <h2 class="text-2xl font-bold mb-4">Quản lý sinh viên</h2>
+    <div class="mb-4">
+        <label for="lop" class="block text-gray-700 text-sm font-bold mb-2">Chọn lớp:</label>
+        <select id="lop" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+        </select>
+    </div>
+    <h3 class="text-xl font-bold mb-2">Danh sách sinh viên</h3>
+    <table id="bangSinhVien" class="table-auto w-full">
+        <thead>
+            <tr>
+                <th class="px-4 py-2">Họ tên</th>
+                <th class="px-4 py-2">Mã SV</th>
+                <th class="px-4 py-2">Ngày sinh</th>
+                <th class="px-4 py-2">Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    <div id="formSinhVienModal" class="hidden fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    </div>
+    <script>
+        $(document).ready(function () {
+            $.getJSON("data.json", function (data) {
+                // Populate the dropdown with classes
+                const classDropdown = $("#lop");
+                data.classes.forEach((classItem, index) => {
+                    classDropdown.append(new Option(classItem.name, index));
+                });
+
+                // Load students for the initially selected class
+                loadStudents(data.classes[0].students);
+            });
+
+            // Handle class selection
+            $("#lop").change(function () {
+                const selectedIndex = $(this).val();
+                $.getJSON("data.json", function (data) {
+                    const selectedClass = data.classes[selectedIndex];
+                    loadStudents(selectedClass.students);
+                });
+            });
+
+            function loadStudents(students) {
+                const studentTableBody = $("#bangSinhVien tbody");
+                studentTableBody.empty(); // Clear existing rows
+                students.forEach(student => {
+                    const studentRow = `<tr>
+                        <td class="border px-4 py-2">${student.name}</td>
+                        <td class="border px-4 py-2">${student.id}</td>
+                        <td class="border px-4 py-2">${student.dob}</td>
+                        <td class="border px-4 py-2">
+                            <button class="edit-btn bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded" data-id="${student.id}">Edit</button>
+                            <button class="delete-btn bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded" data-id="${student.id}">Delete</button>
+                        </td>
+                    </tr>`;
+                    studentTableBody.append(studentRow);
+                });
+
+                // Bind edit and delete events
+                $(".edit-btn").click(function () {
+                    const studentId = $(this).data("id");
+                    // Handle edit student
+                    console.log("Edit student", studentId);
+                });
+
+                $(".delete-btn").click(function () {
+                    const studentId = $(this).data("id");
+                    // Handle delete student
+                    console.log("Delete student", studentId);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
